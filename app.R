@@ -729,6 +729,12 @@ server <- function(input, output, session) {
     }
   )
 
+  # Allow for download of example data
+  output$ExampleDownload <- downloadHandler(
+    filename = function() {paste("ExtendedExampleChat","txt", sep = ".")},
+    content = function(file) {file.copy("data/ExtendedExampleChat.txt", file)}
+  )
+
   ####################### UPDATING INPUT SELECTION OPTIONS
 
   observeEvent(input$submit, {
