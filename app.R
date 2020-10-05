@@ -20,10 +20,57 @@
 # - Write a LaTeX template that recreates WhatsApp PDF logfiles from the dataframe
 
 # setting working directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # fixing font issue when running on Windows
 # extrafont::loadfonts(device="win")
+
+# installing packages (This might need to be done manually on a server with root access)
+if (!"devtools" %in% installed.packages()) {
+
+  install.packages("devtools")
+}
+
+if (!"shiny" %in% installed.packages()) {
+
+  install.packages("shiny")
+}
+
+if (!"shinythemes" %in% installed.packages()) {
+
+  install.packages("shinythemes")
+}
+
+if (!"shinyWidgets" %in% installed.packages()) {
+
+  install.packages("shinyWidgets")
+}
+
+if (!"shinyjs" %in% installed.packages()) {
+
+  install.packages("shinyTime")
+}
+
+if (!"DT" %in% installed.packages()) {
+
+  install.packages("DT")
+}
+
+if (!"ggplot2" %in% installed.packages()) {
+
+  install.packages("ggplot2")
+}
+
+if (!"rsconnect" %in% installed.packages()) {
+
+  install.packages("rsconnect")
+}
+
+if (!"WhatsR" %in% installed.packages()) {
+
+  devtools::install_github("gesiscss/WhatsR")
+}
+
 
 # shiny backend
 library(shiny)
@@ -32,17 +79,10 @@ library(shinyWidgets)
 library(shinyjs)
 library(shinyTime)
 library(DT)
-
-# deployment
+library(ggplot2)
 library(rsconnect)
-
-# functionality
-if (!"WhatsR" %in% installed.packages()) {
-
-  devtools::install_github("gesiscss/WhatsR")
-}
-
 library(WhatsR)
+
 
 
 # Define UI for application that draws a histogram
@@ -664,6 +704,11 @@ server <- function(input, output, session) {
     datatable(rv$copy[,c(input$show_vars)])
   })
 
+
+  ####### backend for downloading parsed data
+
+
+
   # Allow for download of complete parsed Data
   output$downloadData <- downloadHandler(
     filename = function() {
@@ -745,75 +790,75 @@ server <- function(input, output, session) {
 
     updateTextInput(session,
                     "startdate1",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate1",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate2",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate2",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate3",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate3",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate4",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate4",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate5",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate5",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate6",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate6",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate7",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate7",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate8",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate8",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
     updateTextInput(session,
                     "startdate9",
-                    value = rv$data$DateTime[1])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[1]))
 
     updateTextInput(session,
                     "enddate9",
-                    value = rv$data$DateTime[length(rv$data$DateTime)])
+                    value = gsub("[a-zA-Z]", " ", rv$data$DateTime[length(rv$data$DateTime)]))
 
   })
 
@@ -866,8 +911,8 @@ server <- function(input, output, session) {
 
     output$emoji1 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "cumsum", names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100)
     output$emoji2 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "heatmap", names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100)
-    output$emoji3 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "bar", min.occur = 1, names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100, height = 800) # We need a min.occur value here
-    output$emoji4 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "splitbar", min.occur = 1, names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100, height = 800)  # We need a min.occur value here
+    output$emoji3 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "bar", names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100, height = 800) # We need a min.occur value here
+    output$emoji4 <- renderPlot({req(rv$data);plot_emoji(rv$data, plot = "splitbar", names = input$Sender_input_emoji, starttime = input$startdate6, endtime = input$enddate6, min.occur = input$EmojiMinimum)}, res = 100, height = 800)  # We need a min.occur value here
 
 
   })
