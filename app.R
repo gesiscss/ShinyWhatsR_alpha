@@ -1,5 +1,3 @@
-#
-#
 # We want to build a shiny App that has mutltiple
 # functions:
 
@@ -35,6 +33,12 @@ if (!"shiny" %in% installed.packages()) {
 
   install.packages("shiny")
 }
+
+if (!"shinymanager" %in% installed.packages()) {
+  
+  install.packages("shinymanager")
+}
+
 
 if (!"shinythemes" %in% installed.packages()) {
 
@@ -74,6 +78,7 @@ if (!"WhatsR" %in% installed.packages()) {
 
 # shiny backend
 library(shiny)
+library(shinymanager)
 library(shinythemes)
 library(shinyWidgets)
 library(shinyjs)
@@ -82,7 +87,6 @@ library(DT)
 library(ggplot2)
 library(rsconnect)
 library(WhatsR)
-
 
 
 # Define UI for application that draws a histogram
@@ -108,7 +112,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                 ###############  MAIN PAGE ###############
 
-                navbarPage(tags$img(height = 35, width = 35, src = "WhatsR_logo.png"),
+                navbarPage(tags$img(height = 35, width = 35, src = "WhatsR_logo.png"), id = "WhatsR",
 
                            tabPanel("Overview",
 
@@ -605,16 +609,10 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                     width = 6, offset = 5)
 
-                                    ),
-
-                           tabPanel("Testing Stuff",
-
-                                    #textOutput("rows"),
-                                    textOutput("unique_senders")
-
-                           )
+                                    )
 
 ))
+
 
 # Define server logic
 server <- function(input, output, session) {
@@ -672,7 +670,7 @@ server <- function(input, output, session) {
                           rpnl = " start_newline ",
                           rpom = " media_omitted ")
 
-    # making an internal copy
+    # making an internal copy for column and row selection
     rv$copy <- rv$data
 
   })
@@ -684,7 +682,7 @@ server <- function(input, output, session) {
     req(rv$copy,input$show_vars,input$frame_rows_selected)
 
     # subset copy
-    rv$copy <- rv$copy[-c(input$frame_rows_selected),c(input$show_vars)]
+    rv$copy <- rv$copy[-c(input$frame_rows_selected),] # hier war vorher in den Spalten noch c(input$show_vars) drinn
 
   })
 
@@ -706,8 +704,6 @@ server <- function(input, output, session) {
 
 
   ####### backend for downloading parsed data
-
-
 
   # Allow for download of complete parsed Data
   output$downloadData <- downloadHandler(
