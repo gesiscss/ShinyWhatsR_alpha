@@ -29,16 +29,20 @@ if (!"devtools" %in% installed.packages()) {
   install.packages("devtools")
 }
 
+if (!"encryptr" %in% installed.packages()) {
+
+  install.packages("encryptr")
+}
+
 if (!"shiny" %in% installed.packages()) {
 
   install.packages("shiny")
 }
 
 if (!"shinymanager" %in% installed.packages()) {
-  
+
   install.packages("shinymanager")
 }
-
 
 if (!"shinythemes" %in% installed.packages()) {
 
@@ -51,6 +55,16 @@ if (!"shinyWidgets" %in% installed.packages()) {
 }
 
 if (!"shinyjs" %in% installed.packages()) {
+
+  install.packages("shinyjs")
+}
+
+if (!"shinyalert" %in% installed.packages()) {
+
+  install.packages("shinyalert")
+}
+
+if (!"shinyTime" %in% installed.packages()) {
 
   install.packages("shinyTime")
 }
@@ -70,31 +84,51 @@ if (!"rsconnect" %in% installed.packages()) {
   install.packages("rsconnect")
 }
 
+if (!"ggwordcloud" %in% installed.packages()) {
+
+  install.packages("ggwordcloud")
+}
+
 if (!"WhatsR" %in% installed.packages()) {
 
   devtools::install_github("gesiscss/WhatsR")
 }
 
+if (!"digest" %in% installed.packages()) {
+
+  install.packages("digest")
+}
+
+if (!"slickR" %in% installed.packages()) {
+
+  install.packages("slickR")
+}
+
 
 # shiny backend
+library(encryptr)
+library(digest)
 library(shiny)
 library(shinymanager)
 library(shinythemes)
-library(shinyWidgets)
 library(shinyjs)
+library(shinyalert)
 library(shinyTime)
 library(DT)
 library(ggplot2)
+library(ggwordcloud)
 library(rsconnect)
+library(shinyWidgets)
+library(slickR)
 library(WhatsR)
 
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(theme  = shinytheme("flatly"),
 
-                ### Setting up shiny JS
+                ### Setting up shiny JS and shinyAlert
                 useShinyjs(),
-
+                useShinyalert(),
 
                 ########### Styling ################
 
@@ -116,187 +150,193 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                            tabPanel("Overview",
 
-                                    column(tags$p(HTML("<h1 align='center'> WhatsR </h1>"),
-                                                  "The WhatsR app is a parser for exported WhatsApp Chat messages.
-                                       That means that you can upload a WhatsApp Chatlog file to this
-                                       Website and your data will be converted from a plain text file to
-                                       an R dataframe with information about each message organized in columns
-                                       (like an Excel sheet). You can then download the data to play around with it
-                                       yourself or you can use this website to show you some cool   statistical analyses
-                                       done with your chatlog. You can also download the necessary R-functions and
-                                       parse the files on your local computer using this", tags$a(href = "https://github.com/JuKo007/WhatsR","R package.")
-                                                  , "The package and this corresponding app were written with the goal to enable parsing of WhatsApp messages from both iOS and
-                                       Android devices, from phones with different date and time settings (this influences how the exported text
-                                       files look like and how they have to be analyzed) and to be relatively easily expandable to multiple languages. Currently,
-                                       only English and German are supported though."),
+                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> Analyze your own WhatsApp Chatlogs! </h1>"),
+                                                    "Dear study participant, on this website you have the opportunity to securely analyze,
+                                                  your own WhatsApp chatlogs and to learn something about your chatting behavior and your digital
+                                                  social relationships in exchange for providing some meta-information about your chat. In the following steps,
+                                                  we will guide you through the process of how to export and securely upload you WhatsApp chatlogs to this website.
+                                                  You will then have the opportunity to interactively explore your messages and to see what kind of information can
+                                                  be extracted from a chatlog. This information will only be visible to you and will be deleted as soon as you close
+                                                  this website. You can then interactively decide which parts (if any) of the displayed information you would feel
+                                                  comfortable to donate to our research project. Importantly, it is not possible to donate any personal identifiable information
+                                                  such as names, the content of messages, telephone numbers or sent media files. It's only possible to donate meta-information
+                                                  such as when a message was sent, how many words it contained or if it contained emoji, smilies or links. Should you decide to donate
+                                                  any meta-information about your chat, you will receive access to an interactive analysis environment to analyze your own data,
+                                                  see who is sending the most words, who is using which emojis and smilies, which words are used most frequently in the chat
+                                                  or who takes how long to respond to messages on average. Again, this information is only for you and we will only save the meta-information
+                                                  that you explicitly reviewed and shared with us."),
 
-                                           tags$p(HTML("<h1 align='center'> Disclaimer </h1>"),
-                                                  "The R-package and the corresponding app are still in its development. The code is still ugly and
-                                       inefficient. Both the R-package and this app will be subject to change. Should you be facing any issues or odd
-                                       behavior, please report it",tags$a(href = "https://github.com/gesiscss/WhatsR/issues","here.")),
+                                           width = 6, offset = 3),
 
-                                           tags$p("Neither the R-package, nor this app are in any way related to, supported or endorsed by the WhatsApp company. They are
-                                       meant to be a scientific tool for analysis of interpersonal social relationships and as a gadget for
-                                       quantified self enthusiasts interested in visualizing their own interpersonal relationships."),
+                                    tags$br(),
+                                    tags$br(),
 
-                                           tags$p("You should use this software responsibly. If you want to analyze a chatlog you exported, you should
-                                       ask all members of that chat for their permission. You should also be carefull to never share your
-                                       raw or parsed chatlog files with anybody except the members of the chat. Every chat very likely contains highly
-                                       personal data such as phone-numbers, links to social media accounts and intimate conversations."),
+                                    column(slickROutput("slickr", width = "700px", height = "100%"),
 
-                                           tags$p(HTML("<h1 align='center'> FAQ </h1>"),
-                                                  tags$strong("What is the goal of this parser?"),
-                                                  HTML("<br>"),
-                                                  "It is supposed to be a tool for scientifc analysis of interpersonal relationships
-                                       in research conducted with informed and consenting participants. Certain aspects of
-                                       interpersonal communication patterns (e.g. who's contacting whom, when, how often, which emojies
-                                       are used, the sentiment of exchanges messages etc.) might help researchers to quantify
-                                       interpersonal relationships in greater detail and at better resolution. The parser helps to structure
-                                       the chatlogs in such a way that further analysis becomes a lot easier without the need to directly interact
-                                       with the raw files.If you are using the web app or the R-package, your data is ",tags$strong("NOT"),
-                                                  "used for research purposes and will only be visible to you."),
+                                           width = 6, offset = 3),
 
-                                           tags$p(tags$strong("Is it safe to upload my chatlogs to this app?"),HTML("<br>"),
-                                                  "This app was build using the", tags$a(href = "https://cran.r-project.org/web/packages/shiny/shiny.pdf","shiny R-package."),
-                                                  "As such, data from users is processed in seperate containers and no user will be able to
-                                       access data of another user. This app does neither safe raw or parsed data uploaded or generated by the users, nor
-                                       any information about the users themselves. The source code of the app is available in the repository of the R-package
-                                       linked above. If you are concered about security, you can always download the R-package and process files on
-                                       your local machine rather than using this app."),
+                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> How is my data secured? </h1>"),
+                                                  "All traffic on this website is secured with the SSL protocol and no information is persistently stored
+                                                  until you manually review it and explicitly donate it to us. You will see your messages after uploading them to
+                                                  the website but only you will be able to see them and only for the duration of your visit on this website. After you close
+                                                  the browser tab, all information that you did not explicitly donate to us will be deleted. Importantly, you will only be able
+                                                  to donate anonymous metadata. That means even if you wanted, it is not physically possible to donate personal data such as
+                                                  message content, names, telephone numbers, sent files,images or videos. All data will be collected and processed according
+                                                  to the European General Data Protection Guidelines on a secured Server at the University of Ulm, Germany. All donated meta-data is encrypted with RSA.
+                                                  This study was reviewed and approved by the Ethics Committee of the University of Ulm, Germany."),
 
-                                           tags$p(tags$strong("Why is my language not available?"),HTML("<br>"),
-                                                  "To make this parser work with a language, it needs some information about text that is
-                                       inserted by WhatsApp into the chatfile for specific actions such as attached files, adding
-                                       new friends to a group, missed calls, live locations etc. These texts are different in every language
-                                       and also different on iOS and Android. An attached file on a German android phone would generate the pattern
-                                       'FILENAME (Datei angehängt)', on an English android phone it would be 'FILENAME (file attached)' and on an english
-                                       iOS phone it would be '<attached: FILENAME>'. To make this parser work in a specific language, these patterns have
-                                       to be added as regular expressions to its language database. If you are willing to extract these manually from a
-                                       chatfile in your language, I will gladly add them to the language database and update the package and this app."),
+                                           width = 6, offset = 3),
 
-                                           width = 6, offset = 3)
+                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> What is the donated Metadata used for? </h1>"),
+                                                  "The donated Metadata is used for research purposes only. That means that we will analyze your chatlog metadata
+                                                  in combination with your survey responses and average the results over all participants. We will publish the aggregated results
+                                                  in peer-reviewed scientific journals and present them on scientifc conferences to other scientists. The main goal of this research
+                                                  project is to learn if specific types of relationships can be distinguished by patterns in how people communicate with each other.
+                                                  The anonmized metadata will be uploaded to the open science framework (www.osf.org) so that other researchers can validate our results."),
+
+                                           width = 6, offset = 3),
+
+                                    headerPanel(""),
+
+                                  fluidRow(
+                                    column(12, align = "center", actionButton("IntroCheck", label = "Understood, take me to the upload page", class = "btn-warning"))
+                                  )
 
                            ),
 
-                           tabPanel("Example",
-
-                                    column(
-
-
-                                      tags$p(HTML("<h1 align='center'> Example Data </h1>"),
-                                             HTML("<br>"),
-                                             "If you do not want to analze your own data or want to check first what this
-                                    parser does, you can find a small example file below. If you click on the button
-                                    below the displayed example data, your browser will download the file and you can use this file in the 'Upload Date' tab."),
-
-                                      HTML("<br>"),
-
-                                      tags$br(),
-
-                                      tags$img(height = 629,
-                                               width = 1064,
-                                               src = "ExampleData.jpg"),
-
-                                      tags$br(),
-                                      tags$br(),
-
-                                      width = 6, offset = 3
-
-                                    ),
-
-                                    column(
-
-                                      downloadButton(outputId = "ExampleDownload", label = "Download Example Data", style = "text-align: center")
-                                      , width = 5, offset = 5)
-
-                           ),
+                           # tabPanel("Example",
+                           #
+                           #          column(
+                           #
+                           #            tags$p(HTML("<h1 align='center'> Example </h1>"),
+                           #                   HTML("<br>"),
+                           #                   paste(
+                           #                     "In this panel, we will show you an example of how to export your WhatsApp chatlog data, how to upload it and what kind of insights can be generated from them. All you need to do this is your phone and an email address that only you have access to. We have summed up the instructions for your convenience but you can find
+                           #                   the official instructions"), a("here", href="https://faq.whatsapp.com/android/chats/how-to-save-your-chat-history/?lang=en"),"."),
+                           #
+                           #            tags$p(HTML("<h2 align='center'> Exporting WhatsApp chatlogs </h2>"),
+                           #
+                           #                   tags$br(),
+                           #
+                           #                   tags$div(tags$ul(
+                           #                     tags$li(tags$span(tags$b("Step 1:"),"Open WhatsApp on your phone and go to the conversation with the social contact you chose in part 1 of the study.")),
+                           #                     tags$br(),
+                           #                     tags$li(tags$span(tags$b("Step 2:"),"In the top right corner of your screen, click on the symbol with the",tags$b("three dots (...)"))),
+                           #                     tags$br(),
+                           #                     tags$li(tags$span(tags$b("Step 3:"),"In the dropdown menu that opens, click on",tags$b("'More'"))),
+                           #                     tags$br(),
+                           #                     tags$li(tags$span(tags$b("Step 4:"),"Click on", tags$b("'Export Chat'") ,"and select", tags$b("'Without Media Files'"))),
+                           #                     tags$br(),
+                           #                     tags$li(tags$span(tags$b("Step 5:"),"Enter you email address. Please pick an email address that only you have access to and double check for correct spelling")),
+                           #                     tags$br(),
+                           #                     tags$li(tags$span(tags$b("Step 6:")," Access your Email client. You will have received an email from WhatsApp with your chatlog as an attachment.
+                           #                                       The file type is", tags$b(".txt"),"If you not only receive a .txt file but also media files, please go through the steps again and ensure that you
+                           #                                       select the export option",tags$b("'Without Media Files'"),". Download the exported chat to your computer."))
+                           #
+                           #                     ))
+                           #
+                           #
+                           #                   ),
+                           #
+                           #            tags$p(HTML("<h2 align='center'> Uploading your exported WhatsApp Chatlog </h2>")),
+                           #            tags$p("If you did everything correctly, you should now have a .txt file of your chatlog. Depending on which text editor you are using, if you are on a Mac or PC or if the chat was exported from an
+                           #                   android phone or iphone it might look slightly different. For example, the date format might look different or the emoji
+                           #                   might be rendered incorrectly. This is okay and shouldn't bother you. In the next tab you can see some examples of the results that can be generated from
+                           #                   the chatlog."),
+                           #
+                           #            tags$br(),
+                           #            tags$br(),
+                           #
+                           #            fluidRow(
+                           #              column(12, align = "center", actionButton("UploadCheck", label = "Take me to the upload page", class = "btn-warning"))
+                           #            ),
+                           #
+                           #            # tags$img(height = 629,
+                           #            #          width = 1064,
+                           #            #          src = "ExampleData.jpg",
+                           #            #          hover = "Example Data for an exported WhatsApp Chatlog"),
+                           #
+                           #            width = 6, offset = 3)
+                           #
+                           # ),
 
                            tabPanel("Upload Data",
 
                                     sidebarLayout(
-                                      sidebarPanel(
+                                      sidebarPanel( h3("Upload Settings", align = "center"),
 
-                                        fileInput(inputId = "file", label = "Select your exported WhatsApp .txt chatfile",
-                                                  accept = "text/plain"),
-
-                                        radioButtons("os", "Which operating System were the messages extracted from",
+                                        h3("Operating System"),
+                                        helpText("Please indicate whether you exported the chat from an iphone or from an android phone.
+                                                 This information is necessary because chatlogfiles are structured differently on Android and iOS."),
+                                        radioButtons("os", "",
                                                      c("Android" = "android", "Iphone" = "ios")
                                         ),
-                                        radioButtons("language", "Whats the language setting of the phone the messages where extracted from?",
+
+                                        h3("Chat Language"),
+                                        helpText("Please indicate the language setting of the phone the chat was extracted from. This information is necessary
+                                                 because the dates and times are formatted differently depending on the language setting, which is important for processing
+                                                 the chatlog correctly."),
+                                        radioButtons("language", "",
                                                      c("English" = "english", "German" = "german")
                                         ),
-                                        radioButtons("media", "Were media files included in the extraction?",
-                                                     c("Yes" = TRUE, "No" = FALSE)
-                                        ),
-                                        radioButtons("Anon", "Do you want to anonimze the names of chat participants?",
-                                                     c("Yes" = TRUE, "No" = FALSE, "Add anonimized column" = "both")
-                                        ),
-                                        radioButtons("URL", "Do you want to shorten send links to domain names?",
-                                                     c("Yes" = "domain", "No" = FALSE)
-                                        ),
+                                        # radioButtons("media", "Did you include media files in your export?",
+                                        #              c("Yes" = TRUE, "No" = FALSE)
+                                        # ),
+                                        # radioButtons("Anon", "Do you want to anonimze the names of chat participants?",
+                                        #              c("Yes" = TRUE, "No" = FALSE, "Add anonimized column" = "both")
+                                        # ),
+                                        # radioButtons("URL", "Do you want to shorten send links to domain names?",
+                                        #              c("Yes" = "domain", "No" = FALSE)
+                                        # ),
 
-                                        actionButton(inputId = "submit", label = "Upload File", class = "btn-warning")
+                                        h3("Uploading Chatlog File"),
+                                        helpText("You can select your exported WhatsApp chatlog by clicking on the 'Choose File' button below. Once you chose a file, a button for processing the file will appear. By clicking on the 'Process File' button, you are not donating any data yet. You will
+                                                 have the opportunity to review and select your data in the next step before you donate any metadata
+                                                 and can always close the website to delete everything that you didn't explicitly donate."),
+
+                                        fileInput(inputId = "file",
+                                                  label = "",
+                                                  accept = "text/plain",
+                                                  buttonLabel = "Choose File"),
+
+                                        actionButton(inputId = "submit", label = "Process File", class = "btn-warning")
                                       ),
 
                                       mainPanel(
 
-                                        column(tags$p(HTML("<h1 align='center'> WhatsR </h1>"),
-                                                      "The WhatsR app is a parser for exported WhatsApp Chat messages.
-                                       That means that you can upload a WhatsApp Chatlog file to this
-                                       Website and your data will be converted from a plain text file to
-                                       an R dataframe with information about each message organized in columns
-                                       (like an Excel sheet). You can then download the data to play around with it
-                                       yourself or you can use this website to show you some cool   statistical analyses
-                                       done with your chatlog. You can also download the necessary R-functions and
-                                       parse the files on your local computer using this", tags$a(href = "https://github.com/JuKo007/WhatsR","R package.")
-                                                      , "The package and this corresponding app were written with the goal to enable parsing of WhatsApp messages from both iOS and
-                                       Android devices, from phones with different date and time settings (this influences how the exported text
-                                       files look like and how they have to be analyzed) and to be relatively easily expandable to multiple languages. Currently,
-                                       only English and German are supported though."),
+                                        column(
 
-                                               tags$p(HTML("<h1 align='center'> Disclaimer </h1>"),
-                                                      "The R-package and the corresponding app are still in its development. The code is still ugly and
-                                       inefficient. Both the R-package and this app will be subject to change. Should you be facing any issues or odd
-                                       behavior, please report it",tags$a(href = "https://github.com/gesiscss/WhatsR/issues","here.")),
+                                          tags$p(HTML("<h2 align='center'> Exporting WhatsApp chatlogs </h2>"),
 
-                                               tags$p("Neither the R-package, nor this app are in any way related to, supported or endorsed by the WhatsApp company. They are
-                                       meant to be a scientific tool for analysis of interpersonal social relationships and as a gadget for
-                                       quantified self enthusiasts interested in visualizing their own interpersonal relationships."),
+                                                 tags$br(),
 
-                                               tags$p("You should use this software responsibly. If you want to analyze a chatlog you exported, you should
-                                       ask all members of that chat for their permission. You should also be carefull to never share your
-                                       raw or parsed chatlog files with anybody except the members of the chat. Every chat very likely contains highly
-                                       personal data such as phone-numbers, links to social media accounts and intimate conversations."),
+                                                 tags$div(tags$ul(
+                                                   tags$li(tags$span(tags$b("Step 1:"),"Open WhatsApp on your phone and go to the conversation with the social contact you chose in part 1 of the study.")),
+                                                   tags$br(),
+                                                   tags$li(tags$span(tags$b("Step 2:"),"In the top right corner of your screen, click on the symbol with the",tags$b("three dots (...)"))),
+                                                   tags$br(),
+                                                   tags$li(tags$span(tags$b("Step 3:"),"In the dropdown menu that opens, click on",tags$b("'More'"))),
+                                                   tags$br(),
+                                                   tags$li(tags$span(tags$b("Step 4:"),"Click on", tags$b("'Export Chat'") ,"and select", tags$b("'Without Media Files'"))),
+                                                   tags$br(),
+                                                   tags$li(tags$span(tags$b("Step 5:"),"Enter you email address. Please pick an email address that only you have access to and double check for correct spelling")),
+                                                   tags$br(),
+                                                   tags$li(tags$span(tags$b("Step 6:")," Access your Email client. You will have received an email from WhatsApp with your chatlog as an attachment.
+                                                                 The file type is", tags$b(".txt"),"If you not only receive a .txt file but also media files, please go through the steps again and ensure that you
+                                                                 select the export option",tags$b("'Without Media Files'"),". Download the exported chat to your computer."))
 
-                                               tags$p(HTML("<h1 align='center'> FAQ </h1>"),
-                                                      tags$strong("What is the goal of this parser?"),
-                                                      HTML("<br>"),
-                                                      "It is supposed to be a tool for scientifc analysis of interpersonal relationships
-                                       in research conducted with informed and consenting participants. Certain aspects of
-                                       interpersonal communication patterns (e.g. who's contacting whom, when, how often, which emojies
-                                       are used, the sentiment of exchanges messages etc.) might help researchers to quantify
-                                       interpersonal relationships in greater detail and at better resolution. The parser helps to structure
-                                       the chatlogs in such a way that further analysis becomes a lot easier without the need to directly interact
-                                       with the raw files.If you are using the web app or the R-package, your data is ",tags$strong("NOT"),
-                                                      "used for research purposes and will only be visible to you."),
+                                                 ),HTML("<h2 align='center'> Uploading WhatsApp chatlogs </h2>"),
 
-                                               tags$p(tags$strong("Is it safe to upload my chatlogs to this app?"),HTML("<br>"),
-                                                      "This app was build using the", tags$a(href = "https://cran.r-project.org/web/packages/shiny/shiny.pdf","shiny R-package."),
-                                                      "As such, data from users is processed in seperate containers and no user will be able to
-                                       access data of another user. This app does neither safe raw or parsed data uploaded or generated by the users, nor
-                                       any information about the users themselves. The source code of the app is available in the repository of the R-package
-                                       linked above. If you are concered about security, you can always download the R-package and process files on
-                                       your local machine rather than using this app."),
+                                                 tags$ul(
 
-                                               tags$p(tags$strong("Why is my language not available?"),HTML("<br>"),
-                                                      "To make this parser work with a language, it needs some information about text that is
-                                       inserted by WhatsApp into the chatfile for specific actions such as attached files, adding
-                                       new friends to a group, missed calls, live locations etc. These texts are different in every language
-                                       and also different on iOS and Android. An attached file on a German android phone would generate the pattern
-                                       'FILENAME (Datei angehängt)', on an English android phone it would be 'FILENAME (file attached)' and on an english
-                                       iOS phone it would be '<attached: FILENAME>'. To make this parser work in a specific language, these patterns have
-                                       to be added as regular expressions to its language database. If you are willing to extract these manually from a
-                                       chatfile in your language, I will gladly add them to the language database and update the package and this app."),
+                                                   tags$li(tags$span(tags$b("Step 7:"),"Using the panel on the left side, select the correct settings and select the correct chatlog to upload and click on",tags$b("Process file")))
+
+                                                 )
+
+                                                 )
+
+
+                                          ),
 
                                                width = 10, offset = 1)
                                       ),
@@ -307,26 +347,48 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                     sidebarPanel(
 
-                                      checkboxGroupInput("show_vars", "Select Columns to display:",
+                                      h2("Select Data", align = "center"),
+                                      tags$p("In this tab, you can see the data that you uploaded in tabular format and what kind of information
+                                             can be extracted from your chat. This information is only visible to you and will not be saved unless
+                                             you click the 'Donate Selection' button at the bottom of this page. If you click this button, only the displayed
+                                             selection will be send to us. You can thus individually decide which parts of the data you feel comfortable sharing.
+                                             Importantly, the columns 'Message','Flat','TokVec', and 'Location' are only visible to you and cannot be donated. They will be excluded automatically
+                                             from the donation process if you don't to it manually to preserve your anonymity."),
+                                      h3("Exclude Columns"),
+                                      helpText("You can simply exclude whole columns from the selection in the table on the right by clicking on the menu below
+                                               and selecting or deselcting the respective column names."),
+                                      pickerInput("show_vars", "Select Columns to display:",
+                                                  choices = c(""),
+                                                  selected = c(""),
+                                                  label = "Click to select columns",
+                                                  multiple = TRUE),
 
-                                                         choices = c(""),
-
-                                                         selected = c("")),
-
-                                      tags$br(),
-                                      tags$br(),
-                                      actionButton("excludeRows", "Exclude selected Rows"),
-                                      tags$br(),
-                                      tags$br(),
+                                      h3("Exclude Rows"),
+                                      helpText("You can simply click on rows of data in the table to your right if you want to exclude them from the selction. To exclude them, first highlight
+                                                all rows you want to exclude by clicking on them and then press the 'Exclude selected row(s)' button below. You can restore all previously excluded rows by clicking on the 'Restore all excluded rows' button."),
+                                      actionButton("excludeRows", "Exclude selected row(s)"),
                                       actionButton("RestoreRows", "Restore all excluded rows"),
-                                      tags$br(),
-                                      tags$br(),
-                                      downloadButton("downloadData", "Download all Data"),
-                                      tags$br(),
-                                      tags$br(),
-                                      downloadButton("downloadSelection", "Download selected Data")),
 
-                                    mainPanel(DTOutput("frame"))
+                                      h3("Donate Data"),
+                                      helpText("You can donate the selection of data in the table to your right by clicking the button below.
+                                               If you feel comfortable with it and decide to donate your data, you will be automatically forwarded
+                                               to the results page for your chat."),
+
+                                      actionButton(inputId = "donation", label = "Donate Selection and go to Analysis page", class = "btn-warning")
+),
+
+                                    mainPanel(
+
+                                      h1("Your Selection for Data Donation", align = "center"),
+
+                                      DTOutput("frame"),
+
+                                      fluidRow(
+                                        column(1, align = "topright", downloadButton("downloadSelection", "Download selected Data")),
+                                        column(1, align = "topleft", downloadButton("downloadData", "Download All Data"), offset = 9),
+                                      ),
+
+                                              )
 
                                     ),
 
@@ -336,29 +398,56 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Messages",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis."),
 
-                                                                      checkboxGroupButtons("Sender_input_msg", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_msg", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate1",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate1","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      textInput("enddate1",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-01-19 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate1","", value = "2038-01-19 03:14:07", placeholder = "2020-11-01 09:30:00"),
 
-                                                                      actionButton("MsgUpdate","Update Plots", class = "btn-warning")
+                                                                      # actionButton("MsgUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
                                                          mainPanel(
 
+                                                           h1("Amount of Messages", align = "center"),
+                                                           tags$br(),
+                                                           tags$br(),
                                                            plotOutput("message1"),
                                                            tags$br(),
                                                            tags$br(),
                                                            plotOutput("message2"),
                                                            tags$br(),
+                                                           tags$br(),
+                                                           h1("Messages over Time", align = "center"),
+                                                           tags$br(),
+                                                           tags$br(),
                                                            plotOutput("tokensbwah1"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("tokensbwah2")
+                                                           plotOutput("tokensbwah2"),
+                                                           tags$br(),
+                                                           tags$br(),
+                                                           plotOutput("tokensovertime1"),
+                                                           # tags$br(),
+                                                           # tags$br(),
+                                                           # plotOutput("tokensovertime2"),
+                                                           # tags$br(),
+                                                           # tags$br(),
+                                                           # plotOutput("tokensovertime3"),
+                                                           # tags$br(),
+                                                           # tags$br(),
+                                                           # plotOutput("tokensovertime4")
 
                                                          ),
 
@@ -366,15 +455,36 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Wordcloud",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right side, you can see wordclouds shwocasing which words are used most in the chat
+                                                                      and by which person. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis, the minimum
+                                                                             number of times a word needs to occur to be included and the fontsizes in the plot."),
 
-                                                                      checkboxGroupButtons("Sender_input_wc", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_wc", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate2",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00" ,placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Select Word Minimum"),
+                                                                      helpText("You can drag and drop the slider below to adjust the minimum number of times words need to occur in the conversation to be included in the plots on the right. If your plots look messy, try to reduce this number."),
+                                                                      sliderInput("WCMinimum","", min = 1, max = 100, value = 5),
 
-                                                                      textInput("enddate2",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07",  placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate2","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      actionButton("WCUpdate","Update Plots", class = "btn-warning")
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate2","", value = "2038-01-19 03:14:07", placeholder = "2020-11-01 09:30:00"),
+
+                                                                      h3("Overall Wordcloud Fontsize"),
+                                                                      helpText("You can drag and drop the slider below to adjust the fontsize for the upper plot"),
+                                                                      sliderInput("WCFontsize","", min = 1, max = 100, value = 5),
+
+                                                                      h3("Wordcloud by Sender Fontsize"),
+                                                                      helpText("You can drag and drop the slider below to adjust the fontsize for the lower plot"),
+                                                                      sliderInput("WCFontsize2","", min = 1, max = 100, value = 5),
+
 
                                                          ),
 
@@ -392,17 +502,27 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Lexical Dispersion",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right side, you can see at which points in the conversation specific keywords are used. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can chose a keyword to search the conversation for and the timeframe for the plots."),
 
-                                                                      textInput("LeDiPlo_text", HTML("Word <br/> Enter a word to use it in a lexical dispersion plot"), value = "test", width = NULL, placeholder = NULL),
+                                                                      h3("Select a Keyword"),
+                                                                      helpText("You can enter a keyword here to display all occurances of the word in your uploaded chatlog file."),
+                                                                      textInput("LeDiPlo_text","", value = "test", width = NULL, placeholder = NULL),
 
-                                                                      checkboxGroupButtons("Sender_input_lediplo", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_lediplo", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate3",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate3","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      textInput("enddate3",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp until which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate3","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
 
-                                                                      actionButton("LeDiPloUpdate","Update Plots", class = "btn-warning")
+                                                                      #actionButton("LeDiPloUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
@@ -416,17 +536,28 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Links",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right side, you can see how often which links are shared by whom and when. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders, the minimum occurance of a link and the timeframe that should be included in the analysis."),
 
-                                                                      checkboxGroupButtons("Sender_input_links", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate4",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_links", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("enddate4",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Select Link Minimum"),
+                                                                      helpText("You can drag and drop the slider below to adjust the minimum number of times a domain needs to occur in the conversation to be included in the plots on the right. If your plots look messy, try to reduce this number."),
+                                                                      sliderInput("LinkMinimum","", min = 1, max = 100, value = 5),
 
-                                                                      sliderInput("LinkMinimum","Minimum Occurance of Domain to be included in plots", min = 1, max = 100, value = 5),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate4","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      actionButton("LinksUpdate","Update Plots", class = "btn-warning")
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate4","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+
+                                                                      #actionButton("LinksUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
@@ -449,17 +580,28 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Smilies",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right, you can see how often which smilies are used by whom and when. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis."),
 
-                                                                      checkboxGroupButtons("Sender_input_smilies", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate5",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_smilies", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("enddate5",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Select Smiley Minimum"),
+                                                                      helpText("You can drag and drop the slider below to adjust the minimum number of times a smiley needs to occur in the conversation to be included in the plots on the right. If your plots look messy, try to reduce this number."),
+                                                                      sliderInput("SmilieMinimum","", min = 1, max = 100, value = 5),
 
-                                                                      sliderInput("SmilieMinimum","Minimum Occurance of Smilie to be included in plots", min = 1, max = 100, value = 5),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate5","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      actionButton("SmilieUpdate","Update Plots", class = "btn-warning")
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate5","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+
+                                                                      #actionButton("SmilieUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
@@ -482,17 +624,27 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                 tabPanel("Emojis",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right, you can see how often which emoji are used by whom and when.In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders, minimum number of emoji and the timeframe that should be included in the analysis."),
 
-                                                                      checkboxGroupButtons("Sender_input_emoji", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_emoji", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate6",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Select Emoji Minimum"),
+                                                                      helpText("You can drag and drop the slider below to adjust the minimum number of times an emoji needs to occur in the conversation to be included in the plots on the right. If your plots look messy, try to reduce this number."),
+                                                                      sliderInput("EmojiMinimum","", min = 1, max = 100, value = 5),
 
-                                                                      textInput("enddate6",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate6","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      sliderInput("EmojiMinimum","Minimum Occurance of Emoji to be included in plots", min = 1, max = 100, value = 5),
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate6","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
 
-                                                                      actionButton("EmojiUpdate","Update Plots", class = "btn-warning")
+                                                                      #actionButton("EmojiUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
@@ -513,64 +665,26 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          width = 6, offset = 5),
 
-                                                tabPanel("Locations",
-
-                                                         sidebarPanel(h3("Visualization Settings"),
-
-                                                                      checkboxGroupButtons("Sender_input_location", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
-
-                                                                      textInput("startdate7",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"),value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
-
-                                                                      textInput("enddate7",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
-
-                                                                      actionButton("LocUpdate","Update Plots", class = "btn-warning")
-
-                                                         ),
-
-                                                         mainPanel(
-
-                                                           plotOutput("location1")
-
-                                                         ),
-
-                                                         width = 6, offset = 5),
-
-                                                tabPanel("Replies",
-
-                                                         sidebarPanel(h3("Visualization Settings"),
-
-                                                                      checkboxGroupButtons("Sender_input_replies", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
-
-                                                                      textInput("startdate8",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"),value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
-
-                                                                      textInput("enddate8",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
-
-                                                                      actionButton("ReplyUpdate","Update Plots", class = "btn-warning")
-
-                                                         ),
-
-                                                         mainPanel(
-
-                                                           plotOutput("replytime1"),
-                                                           tags$br(),
-                                                           tags$br(),
-                                                           plotOutput("replytime2")
-
-                                                         ),
-
-                                                         width = 6, offset = 5),
 
                                                 tabPanel("Media",
 
-                                                         sidebarPanel(h3("Visualization Settings"),
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right, you can see how often which media file types are shared by whom and when. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis."),
 
-                                                                      checkboxGroupButtons("Sender_input_media", HTML("Sender <br/> Select a list of Senders to be included in the plots, all others will be ignored"), "Upload chatfile to see List of Senders"),
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_media", "", "Upload chatfile to see List of Senders"),
 
-                                                                      textInput("startdate9",HTML("Starting Date <br/> Enter the date and time from which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate9","", value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
 
-                                                                      textInput("enddate9",HTML("Ending Date <br/> Enter the date and time until which you want to include data into the plot in this format: <br/> yyyy-mm-dd hh:mm:ss"), value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate9","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
 
-                                                                      actionButton("MediaUpdate","Update Plots", class = "btn-warning")
+                                                                      #actionButton("MediaUpdate","Update Plots", class = "btn-warning")
 
                                                          ),
 
@@ -586,6 +700,69 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
                                                            tags$br(),
                                                            tags$br(),
                                                            plotOutput("media4")
+
+                                                         ),
+
+                                                         width = 6, offset = 5),
+
+                                                tabPanel("Replies",
+
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right, you can see how long it takes people in the chat to reply and to be replied to. In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis."),
+
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_replies", "", "Upload chatfile to see List of Senders"),
+
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate8","",value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate8","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+
+                                                                      #actionButton("ReplyUpdate","Update Plots", class = "btn-warning")
+
+                                                         ),
+
+                                                         mainPanel(
+
+                                                           plotOutput("replytime1"),
+                                                           tags$br(),
+                                                           tags$br(),
+                                                           plotOutput("replytime2")
+
+                                                         ),
+
+                                                         width = 6, offset = 5),
+
+                                                tabPanel("Locations",
+
+                                                         sidebarPanel(h3("Visualization Settings", align = "center"),
+                                                                      tags$p("On the right, you can see the locations that a re shared by people in the chat on a map.In this panel, you can tweak the settings for the plots on the right side.
+                                                                             You can control the senders and the timeframe that should be included in the analysis."),
+
+                                                                      h3("Selecting Senders"),
+                                                                      helpText("You can select/deselect the senders for which to display the results by clicking on them below. Results will then be recomputed"),
+                                                                      checkboxGroupButtons("Sender_input_location","", "Upload chatfile to see List of Senders"),
+
+                                                                      h3("Selecting Start Time"),
+                                                                      helpText("You can choose the timestamp from which to include messages in the results by entering it below. Enter the date and time from which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("startdate7","",value = "1970-01-01 00:00:00", placeholder = "2018-01-29 10:24:00"),
+
+                                                                      h3("Selecting End Time"),
+                                                                      helpText("You can choose the timestamp up tp which to include messages in the results by entering it below. Enter the date and time until which you want to include data into the plot in this format: yyyy-mm-dd hh:mm:ss"),
+                                                                      textInput("enddate7","", value = "2038-19-01 03:14:07", placeholder = "2020-11-01 09:30:00"),
+
+                                                                      #actionButton("LocUpdate","Update Plots", class = "btn-warning")
+
+                                                         ),
+
+                                                         mainPanel(
+
+                                                           plotOutput("location1")
 
                                                          ),
 
@@ -617,10 +794,115 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 # Define server logic
 server <- function(input, output, session) {
 
+  # hiding tabs that should only be shown conditionally
+  hideTab("WhatsR","Example",session = session)
+  hideTab("WhatsR","Explore Data",session = session)
+  hideTab("WhatsR","Results",session = session)
+  hideTab("WhatsR","Upload Data",session = session)
+
+  # unhide tabs one by one
+
+  observeEvent(input$IntroCheck, {
+
+    showTab("WhatsR","Upload Data",session = session)
+    updateNavbarPage(session, "WhatsR","Upload Data")
+
+  })
+
+  # observeEvent(input$UploadCheck, {
+  #
+  #   showTab("WhatsR","Upload Data",session = session)
+  #   updateNavbarPage(session, "WhatsR","Upload Data")
+  #
+  # })
+
+  observeEvent(input$submit, {
+
+    showTab("WhatsR","Explore Data",session = session)
+    updateNavbarPage(session, "WhatsR","Explore Data")
+
+  })
+
+  # DATA DONATION STEP
+  observeEvent(input$donation, {
+
+    # popup
+    shinyalert("Consent", "Do you want to donate the data selection?",
+               type = "success",
+               showConfirmButton = TRUE,
+               showCancelButton = TRUE,
+               confirmButtonText = "Donate data and show results",
+               cancelButtonText = "Take my back to the selection window",
+               size = "m",
+               closeOnEsc = FALSE,
+               closeOnClickOutside = FALSE)
+
+  })
+
+  # only do this on confirmation
+  observeEvent(input$shinyalert, {
+
+    # only execute if users confirm
+    if (req(input$shinyalert) == TRUE) {
+
+      # making a copy for data donation with only the selected columns (Rows are already updated at this point)
+      rv$copy2 <- rv$copy[,c(input$show_vars)]
+
+      # removing non-donateable columns (This doesn't work correctly yet)
+      if(sum(colnames(rv$copy2) %in% c("Message","Flat","TokVec","Location")) > 0) {
+
+        # removing columns and saving to another object
+        rv$copy2 <- rv$copy2[,!(colnames(rv$copy2) %in% c("Message","Flat","TokVec","Location"))]
+
+        #popup
+        shinyalert("Autoremoved Columns",
+                   type = "error",
+                   "The columns 'Message','Flat','TokVec' and 'Location' cannot be donated.They have been automatically removed from your selection to preserve your privacy.",
+                   showConfirmButton = TRUE,
+                   confirmButtonText = "OK",
+                   closeOnEsc = FALSE,
+                   closeOnClickOutside = FALSE,
+                   inputId = "autoremoveAlert")
+
+      } else {
+
+        # making a copy for data donation with only the selected columns (Rows are already updated at this point)
+        rv$copy2 <- rv$copy[,c(input$show_vars)]
+
+        }
+
+      # saving (naming convention needs to be changed)
+      LocalFilename <- sprintf("%s_%s.rds", as.integer(Sys.time()), digest(rv$copy2))
+      saveRDS(rv$copy2, file = paste("./UserData/",LocalFilename, sep = ""))
+
+      # encrypting file with public key
+      encrypt_file(paste("./UserData/",LocalFilename, sep = ""))
+
+      # removing the unencrypted file
+      file.remove(paste("./UserData/",LocalFilename, sep = ""))
+
+      # removing object
+      rv$copy2 <- NULL
+
+      # routing to results tab
+      showTab("WhatsR","Results",session = session)
+      updateNavbarPage(session, "WhatsR","Results")
+
+    }
+
+  })
+
   # creating reactive value
   rv <- reactiveValues(data = NULL)
 
   # hiding the download buttons if no file has been uploaded
+  observe({
+    shinyjs::hide("submit")
+
+    if (!is.null(input$file))
+      shinyjs::show("submit")
+  })
+
   observe({
     shinyjs::hide("downloadData")
 
@@ -661,9 +943,9 @@ server <- function(input, output, session) {
     rv$data <- parse_chat(name = input$file$datapath,
                           EmojiDic = "internal",
                           smilies = 2,
-                          anon = input$Anon,
-                          media = input$media,
-                          web = input$URL,
+                          anon = TRUE,
+                          media = FALSE,
+                          web = "domain",
                           order = "both",
                           language = input$language,
                           os = input$os,
@@ -682,7 +964,7 @@ server <- function(input, output, session) {
     req(rv$copy,input$show_vars,input$frame_rows_selected)
 
     # subset copy
-    rv$copy <- rv$copy[-c(input$frame_rows_selected),] # hier war vorher in den Spalten noch c(input$show_vars) drinn
+    rv$copy <- rv$copy[-c(input$frame_rows_selected),]
 
   })
 
@@ -699,7 +981,9 @@ server <- function(input, output, session) {
 
   # rendering copy of the dataframe
   output$frame <- renderDT({
-    datatable(rv$copy[,c(input$show_vars)])
+
+    datatable(rv$copy[,c(input$show_vars)], options = list(pageLength = 20))
+
   })
 
 
@@ -731,16 +1015,17 @@ server <- function(input, output, session) {
     content = function(file) {file.copy("data/ExtendedExampleChat.txt", file)}
   )
 
+
+
   ####################### UPDATING INPUT SELECTION OPTIONS
 
   observeEvent(input$submit, {
 
     ### Updating selection of columns
-    updateCheckboxGroupInput(session,
+    updatePickerInput(session,
                              "show_vars",
                              choices = colnames(rv$data),
-                             selected = colnames(rv$data)[1:12])
-
+                             selected = colnames(rv$data)[c(1:2,6:7,9:11,13:14)])
 
     ### Updating all Sender selections for all analyses
     updateCheckboxGroupButtons(session,
@@ -872,15 +1157,20 @@ server <- function(input, output, session) {
 
     output$message1 <- renderPlot({req(rv$data);plot_messages(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1)}, res = 100)
     output$message2 <- renderPlot({req(rv$data);plot_messages(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "pie")}, res = 100)
+
     output$tokensbwah1 <- renderPlot({req(rv$data);plot_tokens(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "cumsum")}, res = 100)
     output$tokensbwah2 <- renderPlot({req(rv$data);plot_tokens_over_time(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "heatmap")}, res = 100)
+    output$tokensovertime1 <- renderPlot({req(rv$data);plot_tokens_over_time(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1)}, res = 100)
+    #output$tokensovertime2 <- renderPlot({req(rv$data);plot_tokens_over_time(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "year")}, res = 100)
+    #output$tokensovertime3 <- renderPlot({req(rv$data);plot_tokens_over_time(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "weekday")}, res = 100)
+    #output$tokensovertime4 <- renderPlot({req(rv$data);plot_tokens_over_time(rv$data, names = input$Sender_input_msg, starttime = input$startdate1, endtime = input$enddate1, plot = "hours")}, res = 100)
 
-  })
+    })
 
   observeEvent(c(input$submit,input$WCUpdate),{
 
-    output$wordcloud1 <- renderPlot({req(rv$data);plot_wordcloud(rv$data, names = input$Sender_input_wc, starttime = input$startdate2, endtime = input$enddate2)}, res = 100)
-    output$wordcloud2 <- renderPlot({req(rv$data);plot_wordcloud(rv$data, comparison = TRUE, names = input$Sender_input_wc, starttime = input$startdate2, endtime = input$enddate2)}, res = 100)
+    output$wordcloud1 <- renderPlot({req(rv$data);plot_wordcloud(rv$data, names = input$Sender_input_wc, starttime = input$startdate2, endtime = input$enddate2, min.freq = input$WCMinimum, font.size = input$WCFontsize)}, res = 100)
+    output$wordcloud2 <- renderPlot({req(rv$data);plot_wordcloud(rv$data, comparison = TRUE, names = input$Sender_input_wc, starttime = input$startdate2, endtime = input$enddate2, min.freq = input$WCMinimum, font.size = input$WCFontsize2)}, res = 100)
 
   })
 
@@ -950,6 +1240,12 @@ server <- function(input, output, session) {
 
   # displaying output for selected rows
   output$rows <- renderText(input$frame_rows_selected)
+
+  ####################### EXAMPLE SLIDESHOW
+  output$slickr <- renderSlickR({
+    imgs <- list.files("./www/Slideshow", pattern=".png", full.names = TRUE)
+    slickR(imgs)
+  })
 
 }
 
