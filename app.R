@@ -23,6 +23,31 @@
 # fixing font issue when running on Windows
 # extrafont::loadfonts(device="win")
 
+######## trying out the shiny manager
+# define some credentials
+credentials <- data.frame(
+  user = c("JuKo"), # mandatory
+  password = c("admin"), # mandatory
+  start = c("2019-04-15"), # optional (all others)
+  expire = c(NA),
+  admin = c(TRUE),
+  comment = "Analyse your own WhatsApp Chatlogs!",
+  stringsAsFactors = FALSE
+)
+
+# you can use keyring package to set database key
+# library(keyring)
+# key_set("R-shinymanager-key", "obiwankenobi")
+
+# Init the database
+# create_db(
+#   credentials_data = credentials,
+#   sqlite_path = "../database.sqlite", # will be created
+#   passphrase = key_get("R-shinymanager-key", "obiwankenobi")
+#   # passphrase = "passphrase_wihtout_keyring"
+# )
+
+
 # installing packages (This might need to be done manually on a server with root access)
 if (!"devtools" %in% installed.packages()) {
 
@@ -46,7 +71,7 @@ if (!"shinymanager" %in% installed.packages()) {
 
 if (!"shinythemes" %in% installed.packages()) {
 
-  install.packages("shinythemes")
+  remotes::install_github("datastorm-open/shinymanager")
 }
 
 if (!"shinyWidgets" %in% installed.packages()) {
@@ -104,6 +129,11 @@ if (!"slickR" %in% installed.packages()) {
   install.packages("slickR")
 }
 
+if (!"keyring" %in% installed.packages()) {
+
+  install.packages("keyring")
+}
+
 
 # shiny backend
 library(encryptr)
@@ -120,6 +150,7 @@ library(ggwordcloud)
 library(rsconnect)
 library(shinyWidgets)
 library(slickR)
+library(keyring)
 library(WhatsR)
 
 
@@ -150,7 +181,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                            tabPanel("Overview",
 
-                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> Analyze your own WhatsApp Chatlogs! </h1>"),
+                                    column(tags$p(style = "text-align: justify;",HTML("<h1 align='center'> Analyze your own WhatsApp Chatlogs! </h1>"),
                                                     "Dear study participant, on this website you have the opportunity to securely analyze,
                                                   your own WhatsApp chatlogs and to learn something about your chatting behavior and your digital
                                                   social relationships in exchange for providing some meta-information about your chat. In the following steps,
@@ -175,7 +206,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                            width = 6, offset = 3),
 
-                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> How is my data secured? </h1>"),
+                                    column(tags$p(style = "text-align: justify;",HTML("<h1 align='center'> How is my data secured? </h1>"),
                                                   "All traffic on this website is secured with the SSL protocol and no information is persistently stored
                                                   until you manually review it and explicitly donate it to us. You will see your messages after uploading them to
                                                   the website but only you will be able to see them and only for the duration of your visit on this website. After you close
@@ -187,7 +218,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                            width = 6, offset = 3),
 
-                                    column(tags$p(style="text-align: justify;",HTML("<h1 align='center'> What is the donated Metadata used for? </h1>"),
+                                    column(tags$p(style = "text-align: justify;",HTML("<h1 align='center'> What is the donated Metadata used for? </h1>"),
                                                   "The donated Metadata is used for research purposes only. That means that we will analyze your chatlog metadata
                                                   in combination with your survey responses and average the results over all participants. We will publish the aggregated results
                                                   in peer-reviewed scientific journals and present them on scientifc conferences to other scientists. The main goal of this research
@@ -790,9 +821,27 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
 ))
 
+# Wrap your UI with secure_app
+ui <- secure_app(ui)
 
 # Define server logic
 server <- function(input, output, session) {
+
+  ###### Shiny manager
+
+  # call the server part
+  # check_credentials returns a function to authenticate users
+  res_auth <- secure_server(
+    check_credentials = check_credentials(credentials)#"../database.sqlite",
+                                          #passphrase = key_get("R-shinymanager-key", "obiwankenobi"))
+  )
+
+  output$auth_output <- renderPrint({
+    reactiveValuesToList(res_auth)
+  })
+
+
+
 
   # hiding tabs that should only be shown conditionally
   hideTab("WhatsR","Example",session = session)
