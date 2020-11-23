@@ -24,6 +24,7 @@
 # extrafont::loadfonts(device="win")
 
 ######## trying out the shiny manager
+
 # define some credentials
 credentials <- data.frame(
   user = c("JuKo"), # mandatory
@@ -66,12 +67,12 @@ if (!"shiny" %in% installed.packages()) {
 
 if (!"shinymanager" %in% installed.packages()) {
 
-  install.packages("shinymanager")
+  remotes::install_github("datastorm-open/shinymanager")
 }
 
 if (!"shinythemes" %in% installed.packages()) {
 
-  remotes::install_github("datastorm-open/shinymanager")
+  install.packages("shinythemes")
 }
 
 if (!"shinyWidgets" %in% installed.packages()) {
@@ -412,7 +413,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                       h1("Your Selection for Data Donation", align = "center"),
 
-                                      DTOutput("frame"),
+                                      addSpinner(DTOutput("frame"), spin = "circle", color = "#25D366"),
 
                                       fluidRow(
                                         column(1, align = "topright", downloadButton("downloadSelection", "Download selected Data")),
@@ -454,22 +455,22 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
                                                            h1("Amount of Messages", align = "center"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("message1"),
+                                                           addSpinner(plotOutput("message1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("message2"),
+                                                           addSpinner(plotOutput("message2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
                                                            h1("Messages over Time", align = "center"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("tokensbwah1"),
+                                                           addSpinner(plotOutput("tokensbwah1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("tokensbwah2"),
+                                                           addSpinner(plotOutput("tokensbwah2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("tokensovertime1"),
+                                                           addSpinner(plotOutput("tokensovertime1"), spin = "circle", color = "#25D366"),
                                                            # tags$br(),
                                                            # tags$br(),
                                                            # plotOutput("tokensovertime2"),
@@ -521,10 +522,10 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("wordcloud1"),
+                                                           addSpinner(plotOutput("wordcloud1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("wordcloud2")
+                                                           addSpinner(plotOutput("wordcloud2"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -559,7 +560,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("lexicaldispersion1")
+                                                           addSpinner(plotOutput("lexicaldispersion1"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -594,16 +595,16 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("links1"),
+                                                           addSpinner(plotOutput("links1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("links2"),
+                                                           addSpinner(plotOutput("links2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("links3", height = 800),
+                                                           addSpinner(plotOutput("links3", height = 800), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("links4")
+                                                           addSpinner(plotOutput("links4"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -638,16 +639,16 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("smilies1"),
+                                                           addSpinner(plotOutput("smilies1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("smilies2"),
+                                                           addSpinner(plotOutput("smilies2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("smilies3"),
+                                                           addSpinner(plotOutput("smilies3"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("smilies4")
+                                                           addSpinner(plotOutput("smilies4"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -681,16 +682,16 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("emoji1"),
+                                                           addSpinner(plotOutput("emoji1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("emoji2"),
+                                                           addSpinner(plotOutput("emoji2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("emoji3", height = 800),
+                                                           addSpinner(plotOutput("emoji3", height = 800), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("emoji4", height = 800)
+                                                           addSpinner(plotOutput("emoji4", height = 800), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -721,16 +722,16 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("media1"),
+                                                           addSpinner(plotOutput("media1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("media2"),
+                                                           addSpinner(plotOutput("media2"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("media3"),
+                                                           addSpinner(plotOutput("media3"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("media4")
+                                                           addSpinner(plotOutput("media4"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -760,10 +761,10 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("replytime1"),
+                                                           addSpinner(plotOutput("replytime1"), spin = "circle", color = "#25D366"),
                                                            tags$br(),
                                                            tags$br(),
-                                                           plotOutput("replytime2")
+                                                           addSpinner(plotOutput("replytime2"), spin = "circle", color = "#25D366")
 
                                                          ),
 
@@ -793,7 +794,7 @@ ui <- fluidPage(theme  = shinytheme("flatly"),
 
                                                          mainPanel(
 
-                                                           plotOutput("location1")
+                                                           addSpinner(plotOutput("location1"), spin = "circle", color = "#25D366")
 
                                                          ),
 
